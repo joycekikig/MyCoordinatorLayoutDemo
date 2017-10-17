@@ -49,29 +49,29 @@
             app:layout_anchorGravity="bottom|right|end"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:layout_gravity="end|bottom"
-            android:src="@drawable/ic_add_white_24dp"
-            app:fabSize="normal" />
+            android:src="@drawable/ic_add_white"
+            app:fabSize="normal"
+            app:backgroundTint="#FFB7DD"/>
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab_rightnext"
             app:layout_anchor="@id/viewpager"
-            app:layout_anchorGravity="top|center|end"
+            app:layout_anchorGravity="center|right|end"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:layout_gravity="end|bottom"
-            android:src="@drawable/ic_navigate_next_white_24dp"
-            app:fabSize="normal" />
+            android:src="@drawable/ic_navigate_next_white"
+            app:fabSize="mini"
+            app:backgroundTint="#5599FF"/>
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab_leftnext"
             app:layout_anchor="@id/viewpager"
-            app:layout_anchorGravity="top|left|end"
+            app:layout_anchorGravity="center|left|end"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:layout_gravity="end|bottom"
-            android:src="@drawable/ic_navigate_before_white_24dp"
-            app:fabSize="normal" />
+            android:src="@drawable/ic_navigate_before_white"
+            app:fabSize="mini"
+            app:backgroundTint="#5599FF"/>
 
     </android.support.design.widget.CoordinatorLayout>
 

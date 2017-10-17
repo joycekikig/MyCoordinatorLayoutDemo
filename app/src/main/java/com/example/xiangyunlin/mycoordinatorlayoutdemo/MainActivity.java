@@ -9,10 +9,12 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton mFabRightNext;
     private FloatingActionButton mFabLeftNext;
     private boolean doNotifyDataSetChangedOnce = false;
+    View view;
 
 
     @Override
@@ -35,7 +38,8 @@ public class MainActivity extends AppCompatActivity {
 
         initData();
         initView();
-        processFloatButton();
+        initFab();
+
     }
 
     private void initData() {
@@ -56,20 +60,14 @@ public class MainActivity extends AppCompatActivity {
         mTabs.addTab(mTabs.newTab().setText("Tab 1"));
         mTabs.addTab(mTabs.newTab().setText("Tab 2"));
 
-        mFabAdd = (FloatingActionButton) findViewById(R.id.fab_add);
-        mFabRightNext = (FloatingActionButton) findViewById(R.id.fab_rightnext);
-        mFabRightNext = (FloatingActionButton) findViewById(R.id.fab_leftnext);
-
         mTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
 
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(tab.getPosition());
-                switch (tab.getPosition()) {
-                    case 0:
-                        mFabLeftNext.hide();
-                        break;
-                }
+                animateFab(tab.getPosition());
+                doRightFAB(tab.getPosition());
+                doLeftFAB(tab.getPosition());
             }
 
             @Override
@@ -88,15 +86,23 @@ public class MainActivity extends AppCompatActivity {
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabs) {
             @Override
             public void onPageSelected(int position) {
-//                super.onPageSelected(position);
                 mViewPager.setCurrentItem(position);
-                switch (position) {
-                    case 0:
-                        mFabLeftNext.hide();
-                        break;
-                }
+                animateFab(position);
+                doRightFAB(position);
+                doLeftFAB(position);
             }
         });
+    }
+
+    private void initFab() {
+        mFabAdd = (FloatingActionButton) findViewById(R.id.fab_add);
+        mFabRightNext = (FloatingActionButton) findViewById(R.id.fab_rightnext);
+        mFabLeftNext = (FloatingActionButton) findViewById(R.id.fab_leftnext);
+        mFabLeftNext.hide();
+
+        doAddFAB();
+        doRightFAB(mTabs.getTabCount());
+        doLeftFAB(0);
     }
 
     private class SamplePagerAdapter extends PagerAdapter {
@@ -120,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            View view = new View(MainActivity.this);
+           view = new View(MainActivity.this);
 
             switch(position){
                 case 0:
@@ -132,12 +138,15 @@ public class MainActivity extends AppCompatActivity {
                     mList.setLayoutManager(layoutManager);
                     mList.setAdapter(myAdapter);
                     break;
-                case 1:
+                default:
                     view = getLayoutInflater().inflate(R.layout.pager_item2, container, false);
                     container.addView(view);
                     TextView title = view.findViewById(R.id.item_title);
                     title.setText(String.valueOf(position + 1));
             }
+            // ERROR : The specified child already has a parent. You must call removeView() on the child's parent first.
+            if(view.getParent() != null)
+                container.removeView(view);
             container.addView(view);
             return view;
         }
@@ -182,16 +191,76 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // 點擊浮動+鈕，增加Tab
-    public void processFloatButton() {
+    // Add Fab Function
+    private void doAddFAB() {
+        // 點擊浮動+鈕，增加Tab
         mFabAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                doNotifyDataSetChangedOnce = true;
                 int numTabs = mTabs.getTabCount();
                 mTabs.addTab(mTabs.newTab().setText("Tab " + String.valueOf(numTabs+1)));
+                doNotifyDataSetChangedOnce = true;
+                mViewPager.setCurrentItem(mTabs.getTabCount());
+                Log.d("test", "Add");
+                mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabs){
+                    @Override
+                    public void onPageSelected(int position) {
+                        super.onPageSelected(position);
+                    }
+                });
             }
         });
+
     }
 
+    // 點擊浮動>鈕，往下一個Tab
+    private void doRightFAB(final int position) {
+        mFabRightNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                doNotifyDataSetChangedOnce = true;
+                mViewPager.setCurrentItem(position+1);
+                Log.d("test", "Right");
+                mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabs){
+                    @Override
+                    public void onPageSelected(int position) {
+                        super.onPageSelected(position);
+                    }
+                });
+            }
+        });
+
+    }
+
+    // 點擊浮動<鈕，往上一個Tab
+    private void doLeftFAB(final int position) {
+        mFabLeftNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                doNotifyDataSetChangedOnce = true;
+                mViewPager.setCurrentItem(position-1);
+                Log.d("test", "Left");
+                mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabs){
+                    @Override
+                    public void onPageSelected(int position) {
+                        super.onPageSelected(position);
+                    }
+                });
+            }
+        });
+
+    }
+
+    private void animateFab(int position) {
+        switch (position) {
+            case 0:
+                mFabRightNext.show();
+                mFabLeftNext.hide();
+                break;
+            default:
+                mFabRightNext.show();
+                mFabLeftNext.show();
+                break;
+        }
+    }
 }
